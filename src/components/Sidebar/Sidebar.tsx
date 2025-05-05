@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useReservoirsStore } from "@/stores";
 
 export default function Sidebar() {
-  const { renderedReservoirs, renderReservoirs } = useReservoirsStore();
+  const { renderedReservoirs, renderReservoirs, fetchReservoir } =
+    useReservoirsStore();
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -28,7 +29,7 @@ export default function Sidebar() {
           <ul>
             {renderedReservoirs.map((reservoir) => (
               <li key={reservoir.id}>
-                <button>
+                <button onClick={() => fetchReservoir(reservoir.id)}>
                   <span>{reservoir.name}</span>
                 </button>
               </li>
