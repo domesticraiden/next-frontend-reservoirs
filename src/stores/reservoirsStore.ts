@@ -14,7 +14,6 @@ interface ReservoirsStoreState {
   updateReservoir: (id: number, data: ReservoirUpdate) => Promise<void>;
   toggleLockReservoir: (id: number, isLocked: boolean) => Promise<void>;
   renderReservoirs: (name: string) => void;
-  selectReservoir: (id: number) => void;
 }
 
 export const useReservoirsStore = create<ReservoirsStoreState>((set) => ({
@@ -24,11 +23,7 @@ export const useReservoirsStore = create<ReservoirsStoreState>((set) => ({
 
   fetchReservoirs: async () => {
     const data = await reservoirsApi.getReservoirs();
-    set((state) => ({
-      reservoirs: data,
-      currentReservoir:
-        state.currentReservoir || (data.length > 0 ? data[0] : undefined),
-    }));
+    set({ reservoirs: data });
   },
   fetchReservoir: async (id: number) => {
     const data = await reservoirsApi.getReservoir(id);
@@ -79,13 +74,6 @@ export const useReservoirsStore = create<ReservoirsStoreState>((set) => ({
     set((state) => ({
       renderedReservoirs: state.reservoirs.filter((reservoir) =>
         reservoir.name.toLowerCase().includes(name.toLowerCase()),
-      ),
-    }));
-  },
-  selectReservoir: (id: number) => {
-    set((state) => ({
-      currentReservoir: state.reservoirs.find(
-        (reservoir) => reservoir.id === id,
       ),
     }));
   },
