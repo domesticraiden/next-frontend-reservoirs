@@ -14,6 +14,7 @@ interface ReservoirsStoreState {
   updateReservoir: (id: number, data: ReservoirUpdate) => Promise<void>;
   toggleLockReservoir: (id: number, isLocked: boolean) => Promise<void>;
   renderReservoirs: (name: string) => void;
+  resetCurrentReservoir: () => void;
 }
 
 export const useReservoirsStore = create<ReservoirsStoreState>((set) => ({
@@ -76,5 +77,8 @@ export const useReservoirsStore = create<ReservoirsStoreState>((set) => ({
         reservoir.name.toLowerCase().includes(name.toLowerCase()),
       ),
     }));
+  },
+  resetCurrentReservoir: () => {
+    set({ currentReservoir: undefined });
   },
 }));

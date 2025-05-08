@@ -1,12 +1,101 @@
 "use client";
 
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useReservoirsStore } from "@/stores";
+import { ReservoirUpdate } from "@/types";
+import Select from "@/components/Select/Select";
+import Switch from "@/components/Switch/Switch";
 
 export default function Properties() {
-  const [isFocus, setIsFocus] = useState<boolean>(false);
+  const {
+    currentReservoir,
+    deleteReservoir,
+    resetCurrentReservoir,
+    updateReservoir,
+  } = useReservoirsStore();
 
-  const handleFocusBlur = () => {
-    setIsFocus(!isFocus);
+  const [tempProperties, setTempProperties] = useState<ReservoirUpdate>({
+    name: "",
+    productId: 1,
+    capacity: 1,
+    volume: 0,
+  });
+
+  const [isFocus, setIsFocus] = useState<boolean>(false);
+  const [isPercentage, setIsPercentage] = useState<boolean>(false);
+
+  const [capacityInput, setCapacityInput] = useState<string>("");
+  const [volumeInput, setVolumeInput] = useState<string>("");
+
+  useEffect(() => {
+    const setCurrentProperties = () => {
+      if (currentReservoir) {
+        setIsPercentage(false);
+        setTempProperties({
+          name: currentReservoir.name,
+          productId: currentReservoir.productId,
+          capacity: currentReservoir.capacity,
+          volume: currentReservoir.volume,
+        });
+
+        setCapacityInput(String(Math.max(0, currentReservoir.capacity)));
+        setVolumeInput(String(Math.max(0, currentReservoir.volume)));
+      }
+    };
+
+    setCurrentProperties();
+  }, [currentReservoir]);
+
+  const setCurrentProperties = () => {
+    if (currentReservoir) {
+      setIsPercentage(false);
+      setTempProperties({
+        name: currentReservoir.name,
+        productId: currentReservoir.productId,
+        capacity: currentReservoir.capacity,
+        volume: currentReservoir.volume,
+      });
+
+      setCapacityInput(String(Math.max(0, currentReservoir.capacity)));
+      setVolumeInput(String(Math.max(0, currentReservoir.volume)));
+    }
+  };
+
+  const handleChangeName = () => {
+    if (currentReservoir) {
+      updateReservoir(currentReservoir.id, tempProperties).then((response) =>
+        console.log(response),
+      );
+    }
+  };
+
+  const handleRevertChangeName = () => {
+    if (currentReservoir)
+      setTempProperties((prev) => ({ ...prev, name: currentReservoir.name }));
+  };
+
+  const convertVolumeValueToPercentage = (
+    value: number,
+    toPercentage: boolean,
+  ) => {
+    if (toPercentage) {
+      return tempProperties.capacity > 0
+        ? (value / tempProperties.capacity) * 100
+        : 0;
+    } else return (value / 100) * tempProperties.capacity;
+  };
+
+  const validateNumericInput = (value: string): string => {
+    return value.replace(/\D/g, "");
+  };
+
+  const handleDelete = () => {
+    if (currentReservoir) {
+      deleteReservoir(currentReservoir.id).then((response) =>
+        console.log(response),
+      );
+      resetCurrentReservoir();
+    }
   };
 
   return (
@@ -16,57 +105,218 @@ export default function Properties() {
       </div>
       {/*<div></div>*/}
       <div>
-        <form>
+        <form onSubmit={(e) => e.preventDefault()}>
           <div>
             {/*<div></div>*/}
             <input
               type="text"
-              onFocus={handleFocusBlur}
-              onBlur={handleFocusBlur}
+              disabled={currentReservoir?.isLocked}
+              value={tempProperties.name}
+              onChange={(e) =>
+                setTempProperties((prev) => ({ ...prev, name: e.target.value }))
+              }
+              onFocus={() => setIsFocus(true)}
+              onBlur={() =>
+                setTimeout(() => {
+                  if (currentReservoir)
+                    setTempProperties((prev) => ({
+                      ...prev,
+                      name: currentReservoir.name,
+                    }));
+                  setIsFocus(false);
+                }, 100)
+              }
+              maxLength={16}
             />
-            {isFocus && (
-              <div>
-                <button>
-                  <span>{/*<div></div>*/}</span>
-                </button>
-                <button>
-                  <span>{/*<div></div>*/}</span>
-                </button>
-              </div>
-            )}
+            {isFocus &&
+              currentReservoir &&
+              tempProperties.name !== currentReservoir.name && (
+                <div>
+                  <button onClick={handleChangeName}>
+                    <span>{/*<div></div>*/}</span>
+                  </button>
+                  <button onClick={handleRevertChangeName}>
+                    <span>{/*<div></div>*/}</span>
+                  </button>
+                </div>
+              )}
           </div>
-          {/*<div></div>*/}
           <div>
             {/*<div></div>*/}
-            <input type="number" />
+            <Select
+              tempPropertiesProductId={tempProperties.productId}
+              setTempPropertiesAction={setTempProperties}
+            />
           </div>
           <div>
-            <button>
+            {/*<div></div>*/}
+            <input
+              type="text"
+              inputMode="numeric"
+              disabled={currentReservoir?.isLocked}
+              value={capacityInput}
+              onChange={(e) => {
+                const value = validateNumericInput(e.target.value);
+                setCapacityInput(value);
+
+                if (value !== "") {
+                  const numValue = Math.max(1, Number(value));
+
+                  setTempProperties((prev) => {
+                    if (!isPercentage && prev.volume > numValue) {
+                      setVolumeInput(String(numValue));
+                      return {
+                        ...prev,
+                        capacity: numValue,
+                        volume: numValue,
+                      };
+                    }
+
+                    return {
+                      ...prev,
+                      capacity: numValue,
+                    };
+                  });
+                }
+              }}
+              onBlur={() => {
+                if (capacityInput === "" || Number(capacityInput) < 1) {
+                  setCapacityInput("1");
+                  setTempProperties((prev) => ({
+                    ...prev,
+                    capacity: 1,
+                  }));
+                }
+
+                if (
+                  !isPercentage &&
+                  tempProperties.volume > tempProperties.capacity
+                ) {
+                  setTempProperties((prev) => ({
+                    ...prev,
+                    volume: tempProperties.capacity,
+                  }));
+                  setVolumeInput(String(tempProperties.capacity));
+                }
+              }}
+            />
+          </div>
+          <div>
+            <button
+              disabled={currentReservoir?.isLocked || !isPercentage}
+              onClick={() => {
+                if (isPercentage) {
+                  const newVolume = Math.max(
+                    0,
+                    convertVolumeValueToPercentage(
+                      tempProperties.volume,
+                      false,
+                    ),
+                  );
+
+                  setTempProperties((prev) => ({
+                    ...prev,
+                    volume: newVolume,
+                  }));
+                  setVolumeInput(String(newVolume));
+                  setIsPercentage(false);
+                }
+              }}
+            >
               <span>Тонны</span>
             </button>
-            <button>
+            <button
+              disabled={currentReservoir?.isLocked || isPercentage}
+              onClick={() => {
+                if (!isPercentage) {
+                  const newVolume = convertVolumeValueToPercentage(
+                    tempProperties.volume,
+                    true,
+                  );
+
+                  setTempProperties((prev) => ({
+                    ...prev,
+                    volume: newVolume,
+                  }));
+                  setVolumeInput(String(newVolume));
+                  setIsPercentage(true);
+                }
+              }}
+            >
               <span>%</span>
             </button>
           </div>
           <div>
             {/*<div></div>*/}
-            <input type="number" />
+            <input
+              type="text"
+              disabled={currentReservoir?.isLocked}
+              value={volumeInput}
+              onChange={(e) => {
+                const value = validateNumericInput(e.target.value);
+                setVolumeInput(value);
+
+                if (value !== "") {
+                  const numValue = Math.max(0, Number(value));
+                  const maxValue = isPercentage ? 100 : tempProperties.capacity;
+                  const validValue = Math.min(numValue, maxValue);
+
+                  setTempProperties((prev) => ({
+                    ...prev,
+                    volume: validValue,
+                  }));
+
+                  if (numValue !== validValue) {
+                    setVolumeInput(String(validValue));
+                  }
+                }
+              }}
+              onBlur={() => {
+                if (volumeInput === "" || Number(volumeInput) < 0) {
+                  setVolumeInput("0");
+                  setTempProperties((prev) => ({
+                    ...prev,
+                    volume: 0,
+                  }));
+                }
+              }}
+            />
+            {isPercentage && <span>%</span>}
           </div>
           <div>
-            <button>
+            <button
+              onClick={() => {
+                if (currentReservoir)
+                  updateReservoir(currentReservoir.id, tempProperties).then(
+                    (response) => console.log(response),
+                  );
+                setIsPercentage(false);
+              }}
+              disabled={currentReservoir?.isLocked}
+            >
               <span>Сохранить</span>
             </button>
-            <button>
+            <button
+              onClick={setCurrentProperties}
+              disabled={currentReservoir?.isLocked}
+            >
               <span>Отменить</span>
             </button>
           </div>
           <div>
             {/*<div></div>*/}
-            <p>Резервуар не заблокирован</p>
-            {/*<div></div>*/}
+            <p>
+              {currentReservoir?.isLocked
+                ? "Резервуар заблокирован"
+                : "Резервуар не заблокирован"}
+            </p>
+            <Switch />
           </div>
           <div>
-            <button>
+            <button
+              disabled={currentReservoir?.isLocked}
+              onClick={handleDelete}
+            >
               <span>Удалить резервуар</span>
             </button>
           </div>

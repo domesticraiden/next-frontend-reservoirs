@@ -4,8 +4,12 @@ import { useState } from "react";
 import { useReservoirsStore } from "@/stores";
 
 export default function Sidebar() {
-  const { renderedReservoirs, renderReservoirs, fetchReservoir } =
-    useReservoirsStore();
+  const {
+    renderedReservoirs,
+    renderReservoirs,
+    fetchReservoir,
+    resetCurrentReservoir,
+  } = useReservoirsStore();
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -15,12 +19,19 @@ export default function Sidebar() {
         {isOpen ? (
           <input
             type="text"
-            onChange={(e) => renderReservoirs(e.target.value)}
+            onChange={(e) => {
+              resetCurrentReservoir();
+              renderReservoirs(e.target.value);
+            }}
+            placeholder="Введите название резервуара"
           />
         ) : (
           <h3>Список резервуаров</h3>
         )}
-        <button onClick={() => setIsOpen(!isOpen)}>
+        <button
+          disabled={!renderedReservoirs.length}
+          onClick={() => setIsOpen(!isOpen)}
+        >
           <span>{/*<div></div>*/}</span>
         </button>
       </div>
