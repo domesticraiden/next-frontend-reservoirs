@@ -5,6 +5,7 @@ import { useReservoirsStore } from "@/stores";
 import { ReservoirUpdate } from "@/types";
 import Select from "@/components/Select/Select";
 import Switch from "@/components/Switch/Switch";
+import Modal from "@/components/Modal/Modal";
 
 export default function Properties() {
   const {
@@ -12,6 +13,8 @@ export default function Properties() {
     deleteReservoir,
     resetCurrentReservoir,
     updateReservoir,
+    toggleLockReservoir,
+    fetchReservoir,
   } = useReservoirsStore();
 
   const [tempProperties, setTempProperties] = useState<ReservoirUpdate>({
@@ -26,6 +29,9 @@ export default function Properties() {
 
   const [capacityInput, setCapacityInput] = useState<string>("");
   const [volumeInput, setVolumeInput] = useState<string>("");
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isLockModalOpen, setIsLockModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const setCurrentProperties = () => {
@@ -90,11 +96,28 @@ export default function Properties() {
   };
 
   const handleDelete = () => {
+    // Открывает модальное окно для подтверждения удаления
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
     if (currentReservoir) {
       deleteReservoir(currentReservoir.id).then((response) =>
         console.log(response),
       );
       resetCurrentReservoir();
+      setIsDeleteModalOpen(false);
+    }
+  };
+
+  const confirmLock = () => {
+    if (currentReservoir) {
+      toggleLockReservoir(currentReservoir.id, true).then(() => {
+        fetchReservoir(currentReservoir.id).then((response) =>
+          console.log(response),
+        );
+      });
+      setIsLockModalOpen(false);
     }
   };
 
@@ -310,7 +333,13 @@ export default function Properties() {
                 ? "Резервуар заблокирован"
                 : "Резервуар не заблокирован"}
             </p>
-            <Switch />
+            <Switch
+              onToggleRequest={(newState) => {
+                if (newState) {
+                  setIsLockModalOpen(true);
+                }
+              }}
+            />
           </div>
           <div>
             <button
@@ -322,6 +351,20 @@ export default function Properties() {
           </div>
         </form>
       </div>
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        message="Вы действительно хотите удалить этот резервуар? Это действие нельзя будет отменить."
+        onConfirm={confirmDelete}
+        onCancel={() => setIsDeleteModalOpen(false)}
+      />
+
+      <Modal
+        isOpen={isLockModalOpen}
+        message="Вы действительно хотите заблокировать этот резервуар? Это предотвратит любые изменения, пока резервуар не будет разблокирован."
+        onConfirm={confirmLock}
+        onCancel={() => setIsLockModalOpen(false)}
+      />
     </div>
   );
 }

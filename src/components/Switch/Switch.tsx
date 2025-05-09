@@ -2,16 +2,24 @@
 
 import { useReservoirsStore } from "@/stores";
 
-export default function Switch() {
+interface SwitchProps {
+  onToggleRequest?: (newState: boolean) => void;
+}
+
+export default function Switch({ onToggleRequest }: SwitchProps) {
   const { currentReservoir, toggleLockReservoir, fetchReservoir } =
     useReservoirsStore();
 
   const handleToggleLock = async () => {
     if (currentReservoir) {
-      await toggleLockReservoir(
-        currentReservoir.id,
-        !currentReservoir.isLocked,
-      );
+      const newState = !currentReservoir.isLocked;
+
+      if (newState && onToggleRequest) {
+        onToggleRequest(newState);
+        return;
+      }
+
+      await toggleLockReservoir(currentReservoir.id, newState);
       await fetchReservoir(currentReservoir.id);
     }
   };
