@@ -6,6 +6,8 @@ import { ReservoirUpdate } from "@/types";
 import Select from "@/components/Select/Select";
 import Switch from "@/components/Switch/Switch";
 import Modal from "@/components/Modal/Modal";
+import Image from "next/image";
+import styles from "./Properties.module.css";
 
 export default function Properties() {
   const {
@@ -122,15 +124,29 @@ export default function Properties() {
   };
 
   return (
-    <div>
-      <div>
+    <div className={styles.body}>
+      <div className={styles.title}>
         <h2>Информация о резервуаре</h2>
       </div>
-      {/*<div></div>*/}
+      <div className={styles.art}>
+        <Image
+          src="/arts/reservoir_art.svg"
+          width={200}
+          height={200}
+          alt="Иллюстрация резервуара"
+        />
+      </div>
       <div>
-        <form onSubmit={(e) => e.preventDefault()}>
-          <div>
-            {/*<div></div>*/}
+        <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
+          <div className={`${styles.field} ${styles.nameField}`}>
+            <div className={styles.icon}>
+              <Image
+                src="/icons/reservoirName_icon.svg"
+                width={20}
+                height={20}
+                alt="Иконка имени резервуара"
+              />
+            </div>
             <input
               type="text"
               disabled={currentReservoir?.isLocked}
@@ -154,25 +170,63 @@ export default function Properties() {
             {isFocus &&
               currentReservoir &&
               tempProperties.name !== currentReservoir.name && (
-                <div>
-                  <button onClick={handleChangeName}>
-                    <span>{/*<div></div>*/}</span>
+                <div className={styles.nameActions}>
+                  <button
+                    className={styles.nameAction}
+                    onClick={handleChangeName}
+                  >
+                    <span>
+                      <div>
+                        <Image
+                          src="/icons/reservoirNameAccept_icon.svg"
+                          width={19}
+                          height={14}
+                          alt="Принять изменение имени резервуара"
+                        />
+                      </div>
+                    </span>
                   </button>
-                  <button onClick={handleRevertChangeName}>
-                    <span>{/*<div></div>*/}</span>
+                  <button
+                    className={`${styles.nameAction} ${styles.nameActionRevert}`}
+                    onClick={handleRevertChangeName}
+                  >
+                    <span>
+                      <div>
+                        <Image
+                          src="/icons/reservoirNameDeny_icon.svg"
+                          width={14}
+                          height={14}
+                          alt="Отменить изменение имени резервуара"
+                        />
+                      </div>
+                    </span>
                   </button>
                 </div>
               )}
           </div>
-          <div>
-            {/*<div></div>*/}
+          <div className={styles.field}>
+            <div className={styles.icon}>
+              <Image
+                src="/icons/reservoirProduct_icon.svg"
+                width={20}
+                height={20}
+                alt="Иконка вместимости резервуара"
+              />
+            </div>
             <Select
               tempPropertiesProductId={tempProperties.productId}
               setTempPropertiesAction={setTempProperties}
             />
           </div>
-          <div>
-            {/*<div></div>*/}
+          <div className={styles.field}>
+            <div className={styles.icon}>
+              <Image
+                src="/icons/reservoirCapacity_icon.svg"
+                width={20}
+                height={20}
+                alt="Иконка вместимости резервуара"
+              />
+            </div>
             <input
               type="text"
               inputMode="numeric"
@@ -224,8 +278,9 @@ export default function Properties() {
               }}
             />
           </div>
-          <div>
+          <div className={styles.types}>
             <button
+              className={styles.type}
               disabled={currentReservoir?.isLocked || !isPercentage}
               onClick={() => {
                 if (isPercentage) {
@@ -249,6 +304,7 @@ export default function Properties() {
               <span>Тонны</span>
             </button>
             <button
+              className={styles.type}
               disabled={currentReservoir?.isLocked || isPercentage}
               onClick={() => {
                 if (!isPercentage) {
@@ -269,8 +325,15 @@ export default function Properties() {
               <span>%</span>
             </button>
           </div>
-          <div>
-            {/*<div></div>*/}
+          <div className={styles.field}>
+            <div className={styles.icon}>
+              <Image
+                src="/icons/reservoirVolume_icon.svg"
+                width={20}
+                height={20}
+                alt="Иконка объема резервуара"
+              />
+            </div>
             <input
               type="text"
               disabled={currentReservoir?.isLocked}
@@ -304,10 +367,10 @@ export default function Properties() {
                 }
               }}
             />
-            {isPercentage && <span>%</span>}
           </div>
-          <div>
+          <div className={styles.actions}>
             <button
+              className={`${styles.action} ${styles.save}`}
               onClick={() => {
                 if (currentReservoir)
                   updateReservoir(currentReservoir.id, tempProperties).then(
@@ -320,48 +383,57 @@ export default function Properties() {
               <span>Сохранить</span>
             </button>
             <button
+              className={styles.action}
               onClick={setCurrentProperties}
               disabled={currentReservoir?.isLocked}
             >
               <span>Отменить</span>
             </button>
           </div>
-          <div>
-            {/*<div></div>*/}
-            <p>
-              {currentReservoir?.isLocked
-                ? "Резервуар заблокирован"
-                : "Резервуар не заблокирован"}
-            </p>
-            <Switch
-              onToggleRequest={(newState) => {
-                if (newState) {
-                  setIsLockModalOpen(true);
-                }
-              }}
+        </form>
+        <div className={`${styles.lock} ${styles.field}`}>
+          <div className={styles.icon}>
+            <Image
+              src="/icons/reservoirLock_icon.svg"
+              width={20}
+              height={20}
+              alt="Иконка блокировки резервуара"
             />
           </div>
-          <div>
-            <button
-              disabled={currentReservoir?.isLocked}
-              onClick={handleDelete}
-            >
-              <span>Удалить резервуар</span>
-            </button>
-          </div>
-        </form>
+          <p>
+            {currentReservoir?.isLocked
+              ? "Резервуар заблокирован"
+              : "Резервуар не заблокирован"}
+          </p>
+          <Switch
+            onToggleRequest={(newState) => {
+              if (newState) {
+                setIsLockModalOpen(true);
+              }
+            }}
+          />
+        </div>
+        <div>
+          <button
+            className={styles.delete}
+            disabled={currentReservoir?.isLocked}
+            onClick={handleDelete}
+          >
+            <span>Удалить резервуар</span>
+          </button>
+        </div>
       </div>
 
       <Modal
         isOpen={isDeleteModalOpen}
-        message="Вы действительно хотите удалить этот резервуар? Это действие нельзя будет отменить."
+        message="Вы действительно хотите удалить резервуар?"
         onConfirm={confirmDelete}
         onCancel={() => setIsDeleteModalOpen(false)}
       />
 
       <Modal
         isOpen={isLockModalOpen}
-        message="Вы действительно хотите заблокировать этот резервуар? Это предотвратит любые изменения, пока резервуар не будет разблокирован."
+        message="Вы действительно хотите заблокировать резервуар?"
         onConfirm={confirmLock}
         onCancel={() => setIsLockModalOpen(false)}
       />

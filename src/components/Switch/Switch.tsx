@@ -1,6 +1,8 @@
 "use client";
 
 import { useReservoirsStore } from "@/stores";
+import styles from "./Switch.module.css";
+import { useEffect, useState } from "react";
 
 interface SwitchProps {
   onToggleRequest?: (newState: boolean) => void;
@@ -10,23 +12,36 @@ export default function Switch({ onToggleRequest }: SwitchProps) {
   const { currentReservoir, toggleLockReservoir, fetchReservoir } =
     useReservoirsStore();
 
-  const handleToggleLock = async () => {
-    if (currentReservoir) {
-      const newState = !currentReservoir.isLocked;
+  const [newState, setNewState] = useState<boolean>(false);
 
-      if (newState && onToggleRequest) {
-        onToggleRequest(newState);
+  useEffect(() => {
+    if (currentReservoir) setNewState(currentReservoir.isLocked);
+  }, [currentReservoir]);
+
+  const handleOnChange = async () => {
+    if (currentReservoir) {
+      const willBeLocked = !currentReservoir.isLocked;
+
+      if (willBeLocked && onToggleRequest) {
+        onToggleRequest(willBeLocked);
         return;
       }
 
-      await toggleLockReservoir(currentReservoir.id, newState);
+      setNewState(willBeLocked);
+      await toggleLockReservoir(currentReservoir.id, willBeLocked);
       await fetchReservoir(currentReservoir.id);
     }
   };
 
   return (
-    <div>
-      <button onClick={handleToggleLock}></button>
-    </div>
+    <label className={styles.switch}>
+      <input
+        type="checkbox"
+        checked={newState}
+        onChange={handleOnChange}
+        className={styles.switch_input}
+      />
+      <span className={styles.switch_slider} />
+    </label>
   );
 }

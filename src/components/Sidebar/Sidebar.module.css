@@ -1,0 +1,107 @@
+.body {
+    width: 371px;
+    height: 843px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 4px;
+    background: #232532;
+    margin: 0;
+    gap: 2px;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.search {
+    height: 68px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #272A38;
+}
+
+.search > button {
+    width: 35px;
+    height: 35px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+    background: #303549;
+}
+
+.search > .active {
+    background: #0089FF;
+}
+
+.search > h3 {
+    margin-left: 30px;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+    text-align: center;
+}
+
+.search > input {
+    width: 324px;
+    height: 35px;
+    border: none;
+    border-radius: 2px;
+    outline: none;
+    padding: 7px 30px;
+    background: #292D3D;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+}
+
+.search > input::placeholder {
+    color: #FFFFFF;
+}
+
+.list {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.list > ul {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+}
+
+.listItem > button {
+    width: 361px;
+    height: 45px;
+    align-items: center;
+    background: #272A38;
+    border: none;
+    cursor: pointer;
+    padding: 10px 25px 11px 61px;
+}
+
+.listItem > .active {
+    background: rgba(0, 137, 255, 0.11);
+    border-left: 3px solid #3e8be2;
+}
+
+.listItem > button > span {
+    display: flex;
+    justify-content: space-between;
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 16px;
+}
+
+.empty {
+    padding: 10px 25px 11px 61px;
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 16px;
+}

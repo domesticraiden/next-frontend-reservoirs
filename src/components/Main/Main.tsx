@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar/Sidebar";
 import Properties from "@/components/Properties/Properties";
 import { useProductsStore, useReservoirsStore } from "@/stores";
 import { useEffect, useState } from "react";
+import styles from "./Main.module.css";
 
 export default function Main() {
   const { fetchReservoirs, currentReservoir, renderReservoirs } =
@@ -35,7 +36,7 @@ export default function Main() {
   }, [fetchProducts]);
 
   return (
-    <div>
+    <div className={styles.body}>
       <Sidebar />
       {currentReservoir && <Properties />}
     </div>

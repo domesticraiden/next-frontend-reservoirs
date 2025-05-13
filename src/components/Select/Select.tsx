@@ -3,6 +3,8 @@
 import { useProductsStore, useReservoirsStore } from "@/stores";
 import React, { useState } from "react";
 import { ReservoirUpdate } from "@/types";
+import Image from "next/image";
+import styles from "./Select.module.css";
 
 export default function Select({
   tempPropertiesProductId,
@@ -19,9 +21,10 @@ export default function Select({
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
   return (
-    <div>
-      <div>
+    <div className={styles.body}>
+      <div className={styles.container}>
         <button
+          className={styles.current}
           disabled={currentReservoir?.isLocked}
           onClick={() => setIsVisible(!isVisible)}
         >
@@ -34,12 +37,31 @@ export default function Select({
               }
             </span>
           )}
+          {!isVisible ? (
+            <div>
+              <Image
+                src="/icons/selectOpen_icon.svg"
+                width={7}
+                height={14}
+                alt="Иконка открытия селекта"
+              />
+            </div>
+          ) : (
+            <div>
+              <Image
+                src="/icons/selectClose_icon.svg"
+                width={7}
+                height={14}
+                alt="Иконка закрытия селекта"
+              />
+            </div>
+          )}
         </button>
       </div>
       <div>
-        <ul>
-          {isVisible &&
-            products
+        {isVisible && (
+          <ul className={styles.list}>
+            {products
               .filter((product) => product.id !== tempPropertiesProductId)
               .map((product) => (
                 <li key={product.id}>
@@ -56,7 +78,8 @@ export default function Select({
                   </button>
                 </li>
               ))}
-        </ul>
+          </ul>
+        )}
       </div>
     </div>
   );

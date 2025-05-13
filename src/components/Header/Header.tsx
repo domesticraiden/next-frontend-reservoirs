@@ -2,6 +2,8 @@
 
 import { useReservoirsStore } from "@/stores";
 import { ReservoirCreate } from "@/types";
+import Image from "next/image";
+import styles from "./Header.module.css";
 
 export default function Header() {
   const { createReservoir } = useReservoirsStore();
@@ -19,17 +21,22 @@ export default function Header() {
   };
 
   return (
-    <div>
-      <div>
-        <div>
-          {/*<div></div>*/}
+    <div className={styles.body}>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <Image
+            src="/icons/settings_icon.svg"
+            width={20}
+            height={20}
+            alt="Управление резервуарами"
+          />
           <h1>Панель администрирования резервуаров</h1>
         </div>
-        <button onClick={handleCreateReservoir}>
+        <button className={styles.button} onClick={handleCreateReservoir}>
           <span>Добавить резервуар</span>
         </button>
       </div>
-      <button>
+      <button className={styles.button}>
         <span>Экран резервуаров</span>
       </button>
     </div>
